@@ -70,18 +70,23 @@ elif reg == 'RF':
 prediction = model.predict(df)
 
 grade = ''
+cr = ''
 if prediction < 5:
     grade = 'Normal'
+    cr = 'white'
 elif prediction >= 5 and prediction < 15:
     grade = 'Mild'
+    cr = 'green'
 elif prediction >= 15 and prediction < 30:
-    grade = 'Moderate' 
+    grade = 'Moderate'
+    cr = 'blue' 
 elif prediction >= 30:
     grade = 'Severe'
+    cr = 'red'
 
 st.header('Prediction of RDI Score')
 st.write(prediction)
-st.write(f"### Your OSA Grade is ***{grade}***")
+st.markdown(f"### Your OSA Grade is ***:{cr}[{grade}]***")
 st.write('---')
 
 st.header('Feature Importance')
