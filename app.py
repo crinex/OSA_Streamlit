@@ -34,13 +34,14 @@ def user_input_features():
     ESS = st.sidebar.slider('ESS', 0., 25., 8.43)
     BMI = WT / (HT*HT)
     st.write('Your BMI is ', BMI)
-    data = {'Ht': HT,
-            'Wt': WT,
+    data = {
             'Sex': SEX,
             'Age': AGE,
+            'Ht': HT,
+            'Wt': WT,
+            'BMI': BMI,
             'PLMI': PLMI,
             'ESS': ESS,
-            'BMI': BMI,
             }
     features = pd.DataFrame(data, index=[0])
     return features
