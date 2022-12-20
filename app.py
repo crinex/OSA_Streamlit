@@ -33,7 +33,6 @@ def user_input_features():
     PLMI = st.sidebar.slider('PLMI', 0., 120., 54.)
     ESS = st.sidebar.slider('ESS', 0., 25., 8.43)
     BMI = WT / (HT*HT)
-    st.write('Your BMI is ', BMI)
     data = {
             'Sex': SEX,
             'Age': AGE,
@@ -49,6 +48,7 @@ def user_input_features():
 df = user_input_features()
 st.header('Specified Input parameters')
 st.write(df)
+# st.write('Your BMI is ', df['BMI'])
 st.write('---')
 df['Sex'] = df['Sex'].replace({'F':0, 'M':1})
 
@@ -58,8 +58,19 @@ model.fit(X,Y)
 
 prediction = model.predict(df)
 
+grade = ''
+if prediction < 5:
+    grade = 'Normal'
+elif prediction >= 5 and prediction < 15:
+    grade = 'Mild'
+elif prediction >= 15 and prediction < 30:
+    grade = 'Moderate' 
+elif prediction >= 30:
+    grade = 'Severe'
+
 st.header('Prediction of RDI Score')
 st.write(prediction)
+st.write(f"### Your OSA Grade is ***{grade}***")
 st.write('---')
 
 explainer = shap.TreeExplainer(model)
