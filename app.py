@@ -1,57 +1,122 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
-# from prediction import predict
+import shap
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestRegressor
 
+st.set_option('deprecation.showPyplotGlobalUse', False)
+st.write("""
+# Sleep Apnea Score Prediction App
+This app predicts the **Sleep Apnea's RDI Score**!
+""")
+X = pd.read_csv('data.csv')
+X = X.drop(['날짜', 'PSG 번호', 'PSG종류', '병록번호', '이름', '진단명', 'original_path', 'index', 'index_path', 'RDI_label', '주진단분류'], axis=1)
+X['RDI'] = X['RDI'].fillna(X['RDI'].mean())
+X['PLMI'] = X['PLMI'].fillna(X['PLMI'].mean())
+X['ESS'] = X['ESS'].fillna(X['ESS'].mean())
+Y = X['RDI']
+X.drop('RDI', axis=1, inplace=True)
+X.drop('Unnamed: 0', axis=1, inplace=True)
+# st.write(X.head())
+# st.title('Predict your Sleep Apnea Score')
+# st.markdown('Toy model to predict your Sleep Apnea Score')
+st.sidebar.header('Specify Input Parameters')
 
-st.title('Predict your Sleep Apnea Score')
-st.markdown('Toy model to predict your Sleep Apnea Score')
+def user_input_features():
+    HT = st.sidebar.slider('Height', X.Ht.min(), X.Ht.max(), X.Ht.mean())
+    WT = st.sidebar.slider('Weight', X.Wt.min(), X.Wt.max(), X.Wt.mean())
+    SEX = st.sidebar.selectbox('Choose your Sex (Male / Female)',('M', 'F'))
+    AGE = st.sidebar.slider('Age', X.Age.min(), X.Age.max())
+    PLMI = st.sidebar.slider('PLMI', X.PLMI.min(), X.PLMI.max(), X.PLMI.mean())
+    ESS = st.sidebar.slider('ESS', X.ESS.min(), X.ESS.max(), X.ESS.mean())
+    BMI = WT / (HT*HT)
+    st.write('Your BMI is ', BMI)
+    data = {'HT': HT,
+            'WT': WT,
+            'SEX': SEX,
+            'AGE': AGE,
+            'PLMI': PLMI,
+            'ESS': ESS,
+            'BMI': BMI,
+            }
+    features = pd.DataFrame(data, index=[0])
+    return features
 
-st.header("Sleep Apnea Features")
-col1, col2, col3 = st.columns(3)
+df = user_input_features()
+st.header('Specified Input parameters')
+st.write(df)
+st.write('---')
+df['SEX'] = df['SEX'].replace({'F':0, 'M':1})
 
-sc = StandardScaler()
-result = 0
+X['Sex'] = X['Sex'].replace({'F':0, 'M':1})
+model = RandomForestRegressor()
+model.fit(X,Y)
 
-def predict(data):
-    clf = load_model("osa_reg2.h5")
-    return clf.predict(data)
+prediction = model.predict(df)
 
-with col1:
-    # st.text('Height (m)')
-    height = st.number_input('Your Height(m), honestly')
+st.header('Prediction of RDI Score')
+st.write(prediction)
+st.write('---')
 
-    sex = st.selectbox(
-        'Choose your Sex (Male / Female)',
-        ('Male', 'Female')
-    )
-    if sex is 'Male':
-        sex = 0
-    else:
-        sex = 1
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X)
 
-    plmi = st.number_input('PLMI Score')
+st.header('Feature Importance')
+plt.title('Feature importance based on SHAP values')
+shap.summary_plot(shap_values, X)
+st.pyplot(bbox_inches='tight')
+st.write('---')
 
-with col2:
-    # st.text('Weight (kg)')
-    weight = st.number_input('Your Weight(kg), honestly')
+plt.title('Feature importance based on SHAP values (Bar)')
+shap.summary_plot(shap_values, X, plot_type="bar")
+st.pyplot(bbox_inches='tight')
+# df['SEX'] = 
+# st.header("Sleep Apnea Features")
+# col1, col2, col3 = st.columns(3)
 
-    ess = st.number_input('ESS Score')
-    age = st.number_input('Your Age')
-    bmi = weight / (height*height)
-    st.write('Your BMI is ', bmi)
+# sc = StandardScaler()
+# result = 0
 
-with col3:
-    if st.button('Predict'):
-        data = np.array([age, sex, height, weight, bmi, plmi, ess])
-        data = data.reshape(1, -1)
-        data  = sc.fit_transform(data)
-        result = predict(data)
+# def predict(data):
+#     clf = load_model("osa_reg2.h5")
+#     return clf.predict(data)
+
+# with col1:
+#     # st.text('Height (m)')
+#     height = st.number_input('Your Height(m), honestly')
+
+#     sex = st.selectbox(
+#         'Choose your Sex (Male / Female)',
+#         ('Male', 'Female')
+#     )
+#     if sex is 'Male':
+#         sex = 0
+#     else:
+#         sex = 1
+
+#     plmi = st.number_input('PLMI Score')
+
+# with col2:
+#     # st.text('Weight (kg)')
+#     weight = st.number_input('Your Weight(kg), honestly')
+
+#     ess = st.number_input('ESS Score')
+#     age = st.number_input('Your Age')
+#     bmi = weight / (height*height)
+#     st.write('Your BMI is ', bmi)
+
+# with col3:
+#     if st.button('Predict'):
+#         data = np.array([age, sex, height, weight, bmi, plmi, ess])
+#         data = data.reshape(1, -1)
+#         data  = sc.fit_transform(data)
+#         result = predict(data)
         # result = predict(
         # np.array([[age, sex, height, weight, bmi, plmi, ess]]))
-    st.text(result)
+    # st.text(result)
     # height = st.number_input('Your Height, honestly')
 
 # st.text('')
