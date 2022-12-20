@@ -17,6 +17,7 @@ st.write("""
 # 🛌 Sleep Apnea Score Prediction
 This app predicts the **Sleep Apnea's RDI Score**!
 """)
+st.write('Code by ***AUNAL***')
 X = pd.read_csv('data.csv')
 X = X.drop(['날짜', 'PSG 번호', 'PSG종류', '병록번호', '이름', '진단명', 'original_path', 'index', 'index_path', 'RDI_label', '주진단분류'], axis=1)
 X['RDI'] = X['RDI'].fillna(X['RDI'].mean())
