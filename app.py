@@ -34,10 +34,10 @@ def user_input_features():
     ESS = st.sidebar.slider('ESS', 0., 25., 8.43)
     BMI = WT / (HT*HT)
     st.write('Your BMI is ', BMI)
-    data = {'HT': HT,
-            'WT': WT,
-            'SEX': SEX,
-            'AGE': AGE,
+    data = {'Ht': HT,
+            'Wt': WT,
+            'Sex': SEX,
+            'Age': AGE,
             'PLMI': PLMI,
             'ESS': ESS,
             'BMI': BMI,
@@ -49,7 +49,7 @@ df = user_input_features()
 st.header('Specified Input parameters')
 st.write(df)
 st.write('---')
-df['SEX'] = df['SEX'].replace({'F':0, 'M':1})
+df['Sex'] = df['Sex'].replace({'F':0, 'M':1})
 
 X['Sex'] = X['Sex'].replace({'F':0, 'M':1})
 model = RandomForestRegressor()
