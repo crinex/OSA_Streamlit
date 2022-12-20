@@ -8,9 +8,13 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 
+st.set_page_config(
+    layout="centered", page_icon='🛌', page_title="Predict OSA App"
+)
+
 st.set_option('deprecation.showPyplotGlobalUse', False)
 st.write("""
-# Sleep Apnea Score Prediction App
+# 🛌 Sleep Apnea Score Prediction
 This app predicts the **Sleep Apnea's RDI Score**!
 """)
 X = pd.read_csv('data.csv')
